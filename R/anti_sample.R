@@ -19,7 +19,8 @@ anti_sample <- function(anti_sample_batches,
                         cohorts,
                         metricFormat,
                         histogramBuckets,
-                        slow_fetch){
+                        slow_fetch,
+                        verbose){
   
   if(length(date_range) > 2) stop("Anti-sampling not available for comparison date ranges.")
   
@@ -29,7 +30,7 @@ anti_sample <- function(anti_sample_batches,
   }
 
   
-  myMessage("Finding how much sampling in data request...", level = 3)
+  if (verbose) myMessage("Finding how much sampling in data request...", level = 3)
   test_call <- google_analytics_4(viewId            = viewId,
                                   date_range        = date_range,
                                   metrics           = metrics,
@@ -57,7 +58,7 @@ anti_sample <- function(anti_sample_batches,
   rowCount <- round(as.integer(attr(test_call, "rowCount")[[1]]) * 1.2)
   
   if(identical(samplingPer, numeric(0))){
-    myMessage("No sampling found, returning call", level = 3)
+    if (verbose) myMessage("No sampling found, returning call", level = 3)
     unsampled <- google_analytics_4(viewId            = viewId,
                                     date_range        = date_range,
                                     metrics           = metrics,
@@ -80,7 +81,7 @@ anti_sample <- function(anti_sample_batches,
   
   if(anti_sample_batches == "auto"){
     ## sampling
-    myMessage("Finding number of sessions for anti-sample calculations...", level = 3)
+    if (verbose) myMessage("Finding number of sessions for anti-sample calculations...", level = 3)
     explore_sessions <- google_analytics_4(viewId = viewId,
                                            date_range = date_range,
                                            metrics = "sessions",
@@ -103,9 +104,9 @@ anti_sample <- function(anti_sample_batches,
   new_date_ranges <- lapply(splits, function(x) {list(start_date = min(x$date), 
                                                      end_date = max(x$date),
                                                      range_date = nrow(x))})
-  myMessage("Calculated [", length(new_date_ranges), "] batches are needed to download approx. [", rowCount,"] rows unsampled.", 
+  if (verbose) myMessage("Calculated [", length(new_date_ranges), "] batches are needed to download approx. [", rowCount,"] rows unsampled.", 
             level = 3)
-  myMessage("Found [", read_counts, "] sampleReadCounts from a [", space_size, "] samplingSpaceSize.", 
+  if (verbose) myMessage("Found [", read_counts, "] sampleReadCounts from a [", space_size, "] samplingSpaceSize.", 
             level = 2)
   
   ## send to fetch
@@ -114,7 +115,7 @@ anti_sample <- function(anti_sample_batches,
     
     if(x$range_date > 1){
       
-      myMessage("Anti-sample call covering ", x$range_date, " days: ", x$start_date, ", ", x$end_date, level = 3)
+      if (verbose) myMessage("Anti-sample call covering ", x$range_date, " days: ", x$start_date, ", ", x$end_date, level = 3)
       out <- google_analytics_4(viewId            = viewId,
                                 date_range        = c(x$start_date,x$end_date),
                                 metrics           = metrics,
@@ -134,7 +135,7 @@ anti_sample <- function(anti_sample_batches,
       
     } else {
       ## if any new_date_ranges range_date is 1 then possibily will still sample.
-      myMessage("Attempting hourly anti-sampling...", level = 3)
+      if (verbose) myMessage("Attempting hourly anti-sampling...", level = 3)
       out <- hourly_anti_sample(viewId            = viewId,
                                 the_day           = x$start_date,
                                 metrics           = metrics,
@@ -178,7 +179,7 @@ anti_sample <- function(anti_sample_batches,
     attr(out, "rowCount") <- as.character(nrow(out))
     attr(out, "nextPageToken") <- NULL
     attr(out, "antiSampleWorked") <- did_it_work
-    myMessage("Finished unsampled data request, total rows [", nrow(out),"]", level = 3)
+    if (verbose) myMessage("Finished unsampled data request, total rows [", nrow(out),"]", level = 3)
     if(did_it_work) myMessage("Successfully avoided sampling", level = 3)
   }
 

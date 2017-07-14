@@ -269,7 +269,8 @@ google_analytics_4 <- function(viewId,
                                histogramBuckets=NULL,
                                anti_sample = FALSE,
                                anti_sample_batches = "auto",
-                               slow_fetch = FALSE){
+                               slow_fetch = FALSE,
+                               verbose = FALSE){
   
   max         <- as.integer(max)
   allResults  <- FALSE
@@ -285,7 +286,7 @@ google_analytics_4 <- function(viewId,
   }
   
   if(anti_sample){
-    myMessage("anti_sample set to TRUE. Mitigating sampling via multiple API calls.", level = 3)
+    if (verbose) myMessage("anti_sample set to TRUE. Mitigating sampling via multiple API calls.", level = 3)
     return(anti_sample(viewId            = viewId,
                        date_range        = date_range,
                        metrics           = metrics,
@@ -300,11 +301,12 @@ google_analytics_4 <- function(viewId,
                        metricFormat      = metricFormat,
                        histogramBuckets  = histogramBuckets,
                        anti_sample_batches = anti_sample_batches,
-                       slow_fetch = slow_fetch))
+                       slow_fetch = slow_fetch,
+                       verbose = verbose))
   }
   
   if(max > reqRowLimit){
-    myMessage("Multi-call to API", level = 2)
+    if (verbose) myMessage("Multi-call to API", level = 2)
   }
   
   meta_batch_start_index <- seq(from=0, to=max, by=reqRowLimit)
@@ -345,7 +347,7 @@ google_analytics_4 <- function(viewId,
     allResults <- FALSE
   } else {
     ## only gets up to 50000 first time as we don't know true total row count yet
-    out <- fetch_google_analytics_4(requests, merge = TRUE)
+    out <- fetch_google_analytics_4(requests, merge = TRUE, verbose = verbose)
   }
 
   ## if batching, get the rest of the results now we now precise rowCount
@@ -379,12 +381,12 @@ google_analytics_4 <- function(viewId,
                       histogramBuckets  = histogramBuckets)
         
       })
-      the_rest <- fetch_google_analytics_4(requests2, merge = TRUE)
+      the_rest <- fetch_google_analytics_4(requests2, merge = TRUE, verbose = verbose)
       out <- rbind(out, the_rest)
-      myMessage("All data downloaded, total of [",all_rows,"]", level = 3)
+      if (verbose) myMessage("All data downloaded, total of [",all_rows,"]", level = 3)
       
     } else {
-      myMessage("One batch enough to get all results", level = 1)
+      if (verbose) myMessage("One batch enough to get all results", level = 1)
     }
     
   }
@@ -505,7 +507,7 @@ fetch_google_analytics_4_slow <- function(request_list, max_rows, allRows = FALS
 #' 
 #' @family GAv4 fetch functions
 #' @export
-fetch_google_analytics_4 <- function(request_list, merge = FALSE){
+fetch_google_analytics_4 <- function(request_list, merge = FALSE, verbose = FALSE){
 
   assertthat::assert_that(is.list(request_list))
   ## amount of batches per v4 api call
@@ -608,7 +610,7 @@ fetch_google_analytics_4 <- function(request_list, merge = FALSE){
     }
   }
 
-  myMessage("Downloaded [",NROW(out),"] rows from a total of [",attr(out, "rowCount"), "].", level = 3)
+  if (verbose) myMessage("Downloaded [",NROW(out),"] rows from a total of [",attr(out, "rowCount"), "].", level = 3)
 
   out
 }

@@ -1,23 +1,23 @@
 .onLoad <- function(libname, pkgname) {
 
-  op <- options()
-  op.googleAnalyticsR <- list(
-    ## default Google project
-    googleAuthR.client_id = "289759286325-da3fr5kq4nl4nkhmhs2uft776kdsggbo.apps.googleusercontent.com",
-    googleAuthR.client_secret = "1mKySbffYRyWevGkjL0LMJYu",
-    googleAuthR.webapp.client_id = "289759286325-42j8nmkeq5n9v9eb1kiuj2i97v9oea1f.apps.googleusercontent.com",
-    googleAuthR.webapp.client_secret = "0zBtmZ_klTEzXUaTUTP5AkNQ",
-    googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/analytics", 
-                                    "https://www.googleapis.com/auth/analytics.readonly",
-                                    "https://www.googleapis.com/auth/analytics.manage.users.readonly",
-                                    "https://www.googleapis.com/auth/analytics.edit",
-                                    "https://www.googleapis.com/auth/analytics.manage.users")
-  )
-  
-  toset <- !(names(op.googleAnalyticsR) %in% names(op))
-  
-  if(any(toset)) options(op.googleAnalyticsR[toset])
-  default_project_message()
+  # op <- options()
+  # op.googleAnalyticsR <- list(
+  #   ## default Google project
+  #   googleAuthR.client_id = "289759286325-da3fr5kq4nl4nkhmhs2uft776kdsggbo.apps.googleusercontent.com",
+  #   googleAuthR.client_secret = "1mKySbffYRyWevGkjL0LMJYu",
+  #   googleAuthR.webapp.client_id = "289759286325-42j8nmkeq5n9v9eb1kiuj2i97v9oea1f.apps.googleusercontent.com",
+  #   googleAuthR.webapp.client_secret = "0zBtmZ_klTEzXUaTUTP5AkNQ",
+  #   googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/analytics", 
+  #                                   "https://www.googleapis.com/auth/analytics.readonly",
+  #                                   "https://www.googleapis.com/auth/analytics.manage.users.readonly",
+  #                                   "https://www.googleapis.com/auth/analytics.edit",
+  #                                   "https://www.googleapis.com/auth/analytics.manage.users")
+  # )
+  # 
+  # toset <- !(names(op.googleAnalyticsR) %in% names(op))
+  # 
+  # if(any(toset)) options(op.googleAnalyticsR[toset])
+  # default_project_message()
   invisible()
   
 }
